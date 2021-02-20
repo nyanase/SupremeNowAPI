@@ -12,6 +12,36 @@ const caseSchema = new mongoose.Schema({
   petitioner: {
     type: String,
     required: true,
+  },
+  respondent: {
+    type: String,
+    required: true,
+  },
+  decided_by: {
+    type: Date,
+  },
+  lower_court: {
+    type: String,
+    required: true,
+  },
+  citation: {
+    type: String,
+  },
+  granted: {
+    type: Date,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  facts: {
+    type: String,
+    required: true,
+  },
+  question: {
+    type: String,
+    required: true,
   }
 })
 
