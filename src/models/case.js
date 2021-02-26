@@ -44,6 +44,10 @@ const caseSchema = new mongoose.Schema({
   question: {
     type: String,
     required: true,
+  },
+  argued: {
+    type: Date,
+    default: null,
   }
 })
 

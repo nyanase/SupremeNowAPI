@@ -26,9 +26,15 @@ class CasesScraper:
             )
         self.driverPath = r"/usr/local/bin/chromedriver"
 
-    def render_page(self, url):
+    def get_driver(self):
+        # get Chrome driver
+        chromeOptions = webdriver.ChromeOptions()
+        chromeOptions.add_argument("--headless")
+        driver = webdriver.Chrome(executable_path=chrome_path, options=chromeOptions)
+        return driver
+
+    def render_page(self, url, driver):
         # render page using Chrome driver
-        driver = webdriver.Chrome(executable_path=chrome_path)
         driver.get(url)
         time.sleep(3)
         r = driver.page_source
@@ -37,8 +43,13 @@ class CasesScraper:
 
     def scrape_cases(self):
         try:
-            url = "https://www.oyez.org/cases/2020"
-            r = self.render_page(url)
+            oyezDomain = "https://www.oyez.org/"
+            oyezCasesUrl = "https://www.oyez.org/cases/"
+            url = "".join([oyezCasesUrl, "2020/"])
+            driver = self.get_driver()
+
+            # get page
+            r = self.render_page(url, driver)
 
             # get soup for page
             soup = BeautifulSoup(r, "html.parser")
@@ -50,11 +61,63 @@ class CasesScraper:
             cases = article.find_all("li")
 
             for case in cases:
-                title = case.find("h2").get_text
-                print(title.get_text())
+                caseDict = dict.fromkeys(
+                    [
+                        "caseName",
+                        "caseDocket",
+                        "casePetitioner",
+                        "caseRespondent",
+                        "caseDecidedBy",
+                        "caseLowerCourt",
+                        "caseCitation",
+                        "caseGranted",
+                        "caseDescription",
+                        "caseFacts",
+                        "caseQuestion",
+                        "caseArgued",
+                    ],
+                    None,
+                )
+
+                # get name
+                caseDict["caseName"] = case.find("h2").get_text()
+
+                # get link to case
+                caseUrl = case.find("a")["href"]
+                caseUrl = "".join([oyezDomain, caseUrl])
+                print(caseUrl)
+
+                try:
+                    # get case page
+                    casePage = self.render_page(caseUrl, driver)
+                    caseSoup = BeautifulSoup(casePage, "html.parser")
+
+                    caseArticle = caseSoup.find("article")
+
+                    caseHeaders = caseArticle.find_all("h3")
+
+                    # casePetitioner = None
+                    # caseDocket = None
+                    # caseRespondent = ""
+                    # testa = None
+
+                    for header in caseHeaders:
+                        if header.get_text() == "Petitioner":
+                            caseDict["casePetitioner"] = header.next_sibling.strip()
+
+                    print(caseDict["casePetitioner"])
+                    print(caseDict["testa"])
+
+                    print(caseArticle.find_all("h3"))
+                except Exception as e:
+                    print(
+                        "Failed to scrape case:{}\nError: {}".format(
+                            caseDict["caseName"], e
+                        )
+                    )
+
         except Exception as e:
-            print(e)
-            print("hola")
+            print("Failed to scrape cases, error:{}".format(e))
 
 
 if __name__ == "__main__":
