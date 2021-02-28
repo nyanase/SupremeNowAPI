@@ -26,6 +26,8 @@ router.post('/', async (req, res) => {
     lower_court: req.body.lower_court,
     citation: req.body.citation,
     granted: req.body.granted,
+    argued: req.body.argued,
+    decided: req.body.decided,
     description: req.body.description,
     facts: req.body.facts,
     question: req.body.question,
