@@ -72,6 +72,8 @@ class CasesScraper:
                         "docket",
                         "petitioner",
                         "respondent",
+                        "appellant",
+                        "appellee",
                         "decidedBy",
                         "lowerCourt",
                         "citation",
@@ -114,6 +116,10 @@ class CasesScraper:
                             case_dict["petitioner"] = header.next_sibling.strip()
                         if header.get_text() == "Respondent":
                             case_dict["respondent"] = header.next_sibling.strip()
+                        if header.get_text() == "Appellant":
+                            case_dict["appellant"] = header.next_sibling.strip()
+                        if header.get_text() == "Appellee":
+                            case_dict["appellee"] = header.next_sibling.strip()
                         if header.get_text() == "Docket no.":
                             case_dict["docket"] = header.next_sibling.strip()
                         if header.get_text() == "Decided by":
@@ -242,6 +248,8 @@ class CasesScraper:
                     "docket",
                     "petitioner",
                     "respondent",
+                    "appellant",
+                    "appellee",
                     "decidedBy",
                     "lowerCourt",
                     "citation",
@@ -370,6 +378,9 @@ class CasesScraper:
         )
         print(response.text)
 
+        if not response.ok:
+            raise Exception("Failed to post")
+
     def scrape_all_cases(self):
         # get all scrapable years
         year_urls = self.get_scrapable_years()
@@ -382,5 +393,5 @@ class CasesScraper:
 if __name__ == "__main__":
     casesScraper = CasesScraper()
     # casesScraper.scrape_all_cases()
-    # casesScraper.scrape_single_case("https://www.oyez.org/cases/2018/18-281")
-    casesScraper.scrape_cases_by_year("cases/2017")
+    # casesScraper.scrape_single_case("https://www.oyez.org/cases/2018/18-726")
+    casesScraper.scrape_cases_by_year("cases/2018")

@@ -11,11 +11,19 @@ const caseSchema = new mongoose.Schema({
   },
   petitioner: {
     type: String,
-    required: true,
+    default: null,
   },
   respondent: {
     type: String,
-    required: true,
+    default: null,
+  },
+  appellant: {
+    type: String,
+    default: null,
+  },
+  appellee: {
+    type: String,
+    default: null,
   },
   decided_by: {
     type: String,

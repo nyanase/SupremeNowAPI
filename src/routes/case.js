@@ -22,6 +22,8 @@ router.post('/', async (req, res) => {
     docket: req.body.docket,
     petitioner: req.body.petitioner,
     respondent: req.body.respondent,
+    appellant: req.body.appellant,
+    appellee: req.body.appellee,
     decided_by: req.body.decided_by,
     lower_court: req.body.lower_court,
     citation: req.body.citation,
