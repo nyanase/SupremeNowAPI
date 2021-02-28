@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/:id', getCase, async (req, res) => {
+router.get('/:docket', getCase, async (req, res) => {
   res.json(res.theCase);
 });
 
@@ -100,6 +100,7 @@ async function getCase(req, res, next) {
   let theCase
   try {
     theCase = await Case.findById(req.params.id)
+    theCase = await Case.find({'docket': req.params.docket})
     if (theCase == null) {
       return res.status(404).json({ message: 'Cannot find case' })
     }
