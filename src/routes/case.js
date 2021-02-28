@@ -69,16 +69,25 @@ router.patch('/:id', getCase, async (req, res) => {
 //   }
 // })
 
-router.delete('/:id', getCase, async (req, res) => {
+// router.delete('/:id', getCase, async (req, res) => {
+//   try {
+//     const removedCase = await res.theCase.remove();
+//     res.json(
+//       {
+//         message: 'Deleted case',
+//         removed: removedCase
+//       })
+//   } catch (err) {
+//     res.json({ message: err });
+//   }
+// })
+
+router.delete('/all', async (req, res) => {
   try {
-    const removedCase = await res.theCase.remove();
-    res.json(
-      {
-        message: 'Deleted case',
-        removed: removedCase
-      })
+    const cases = await Case.deleteMany({});
+    res.json(cases);
   } catch (err) {
-    res.json({ message: err });
+    res.status(500).json({ message: err })
   }
 })
 
@@ -94,7 +103,7 @@ async function getCase(req, res, next) {
     return res.status(500).json({ message: err })
   }
 
-  res.theCase = theCase
+  res.theCase = theCase 
   next()
 }
 

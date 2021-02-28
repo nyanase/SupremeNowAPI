@@ -18,12 +18,12 @@ const caseSchema = new mongoose.Schema({
     required: true,
   },
   decided_by: {
-    type: Date,
+    type: String,
     default: null
   },
   lower_court: {
     type: String,
-    required: true,
+    default: null,
   },
   citation: {
     type: String,
@@ -48,6 +48,10 @@ const caseSchema = new mongoose.Schema({
   argued: {
     type: Date,
     default: null,
+  },
+  decided: {
+    type: Date,
+    default: null
   }
 })
 
