@@ -12,28 +12,20 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/:docket', getCase, async (req, res) => {
+router.get('/docket/:docket', getCase, async (req, res) => {
   res.json(res.theCase);
 });
 
+router.get('/year/:year', getCasesByYear, async (req, res) => {
+  res.json(res.cases);
+});
+
+router.get('/active', getActiveCases, async (req, res) => {
+  res.json(res.cases);
+});
+
 router.post('/', async (req, res) => {
-  const newCase = new Case({
-    name: req.body.name,
-    docket: req.body.docket,
-    petitioner: req.body.petitioner,
-    respondent: req.body.respondent,
-    appellant: req.body.appellant,
-    appellee: req.body.appellee,
-    decided_by: req.body.decided_by,
-    lower_court: req.body.lower_court,
-    citation: req.body.citation,
-    granted: req.body.granted,
-    argued: req.body.argued,
-    decided: req.body.decided,
-    description: req.body.description,
-    facts: req.body.facts,
-    question: req.body.question,
-  });
+  const newCase = new Case(req.body);
   try {
     const savedCase = await newCase.save();
     res.status(201).json(savedCase);
@@ -95,6 +87,15 @@ router.delete('/all', async (req, res) => {
   }
 })
 
+router.delete('/docket/:docket', async (req, res) => {
+  try {
+    const delCase = await Case.deleteOne({"docket": req.params.docket})
+    res.json(delCase)
+  } catch (err) {
+    res.status(500).json({message: err})
+  }
+})
+
 
 async function getCase(req, res, next) {
   let theCase
@@ -111,5 +112,36 @@ async function getCase(req, res, next) {
   res.theCase = theCase 
   next()
 }
+
+async function getCasesByYear(req, res, next) {
+  let cases
+  try {
+    cases = await Case.find({'year': req.params.year})
+    if (cases == null) {
+      return res.status(404).json({ message: 'Cannot find cases' })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: err })
+  }
+
+  res.cases = cases 
+  next()
+}
+
+async function getActiveCases(req, res, next) {
+  let cases
+  try {
+    cases = await Case.find({'decided': null})
+    if (cases == null) {
+      return res.status(404).json({ message: 'Cannot find cases' })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: err })
+  }
+
+  res.cases = cases 
+  next()
+}
+
 
 module.exports = router;
