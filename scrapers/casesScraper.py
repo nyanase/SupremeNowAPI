@@ -12,20 +12,12 @@ import sys, os
 
 chrome_path = r"/usr/local/bin/chromedriver"
 
-# driver = webdriver.Chrome(executable_path=chrome_path)
-
-# driver.get('https://techwithtim.net')
-
-# from webdriver_manager.chrome import ChromeDriverManager
-
 
 class CasesScraper:
     def __init__(self, dev=True):
         self.server = "http://localhost:3000"
         if not dev:
-            self.server = (
-                "http://ec2-18-191-246-32.us-east-2.compute.amazonaws.com:3000"
-            )
+            self.server = "https://supremenow-api.herokuapp.com"
         self.driver_path = r"/usr/local/bin/chromedriver"
         self.oyez_domain = "https://www.oyez.org/"
 
@@ -83,12 +75,16 @@ class CasesScraper:
                         "question",
                         "argued",
                         "decided",
+                        "year",
                     ],
                     None,
                 )
 
                 # get name
                 case_dict["name"] = case.find("h2").get_text()
+
+                # get year
+                case_dict["year"] = year_url[-4:]
 
                 # get description
                 case_dict["description"] = case.find(
@@ -259,6 +255,7 @@ class CasesScraper:
                 "description": case_dict["description"],
                 "facts": case_dict["facts"],
                 "question": case_dict["question"],
+                "year": case_dict["year"],
             },
         )
         print(response.text)
@@ -282,6 +279,6 @@ class CasesScraper:
 
 if __name__ == "__main__":
     casesScraper = CasesScraper(dev=False)
-    casesScraper.scrape_all_cases()
+    # casesScraper.scrape_all_cases()
     # casesScraper.scrape_single_case("https://www.oyez.org/cases/2018/18-726")
-    # casesScraper.scrape_cases_by_year("cases/2020")
+    casesScraper.scrape_cases_by_year("cases/2020")
