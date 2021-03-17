@@ -12,12 +12,6 @@ import sys, os
 
 chrome_path = r"/usr/local/bin/chromedriver"
 
-# driver = webdriver.Chrome(executable_path=chrome_path)
-
-# driver.get('https://techwithtim.net')
-
-# from webdriver_manager.chrome import ChromeDriverManager
-
 
 class CasesScraper:
     def __init__(self, dev=True):
@@ -284,7 +278,7 @@ class CasesScraper:
 
 
 if __name__ == "__main__":
-    casesScraper = CasesScraper(dev=True)
+    casesScraper = CasesScraper(dev=False)
     # casesScraper.scrape_all_cases()
     # casesScraper.scrape_single_case("https://www.oyez.org/cases/2018/18-726")
-    casesScraper.scrape_cases_by_year("cases/2021")
+    casesScraper.scrape_cases_by_year("cases/2020")
