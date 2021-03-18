@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const articleSchema = new mongoose.Schema({
   source: {
@@ -7,11 +7,15 @@ const articleSchema = new mongoose.Schema({
   },
   author: {
     type: String,
-    required: true,
+    default: null,
   },
   title: {
     type: String,
     default: null,
+  },
+  content: {
+    type: String,
+    required: true,
   },
   description: {
     type: String,
@@ -21,18 +25,26 @@ const articleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image_url: {
+    type: String,
+    default: null,
+  },
   image: {
     type: Buffer,
   },
   published: {
     type: String,
-    default: null
+    default: null,
   },
   docket: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+  has_image: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 articleSchema.methods.toJSON = function () {
   const article = this;
@@ -41,4 +53,4 @@ articleSchema.methods.toJSON = function () {
   return articleObject;
 };
 
-module.exports = mongoose.model('Article', articleSchema)
+module.exports = mongoose.model("Article", articleSchema);
