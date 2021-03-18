@@ -1,24 +1,23 @@
-const express = require('express');
-const multer = require('multer')
-const sharp = require('sharp')
+const express = require("express");
+const multer = require("multer");
+const sharp = require("sharp");
 const router = express.Router();
-const Article = require('../models/article');
+const Article = require("../models/article");
 
-
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const articles = await Article.find();
     res.json(articles);
   } catch (err) {
-    res.status(500).json({ message: err })
+    res.status(500).json({ message: err });
   }
-})
+});
 
-router.get('/docket/:docket', getArticles, async (req, res) => {
+router.get("/docket/:docket", getArticles, async (req, res) => {
   res.json(res.articles);
 });
 
-router.post('/content', async (req, res) => {
+router.post("/content", async (req, res) => {
   const newArticle = new Article(req.body);
   try {
     const savedArticle = await newArticle.save();
@@ -29,64 +28,73 @@ router.post('/content', async (req, res) => {
 });
 
 const upload = multer({
-	limits: { fileSize: 1000000 },
-	fileFilter(req, file, cb) {
-		if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
-			return cb(new Error('Please upload an image'))
-		}
-		cb(undefined, true);
-	}
+  limits: { fileSize: 1000000 },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+      return cb(new Error("Please upload an image"));
+    }
+    cb(undefined, true);
+  },
 });
 
-router.delete('/all', async (req, res) => {
+router.delete("/all", async (req, res) => {
   try {
     const articles = await Article.deleteMany({});
     res.json(articles);
   } catch (err) {
-    res.status(500).json({ message: err })
+    res.status(500).json({ message: err });
   }
-})
-
-router.post('/image/:id', upload.single('image'), async (req, res) => {
-  if (!req.file) return res.status(400).send();
-  try {
-      const article = await Article.findOne({ "_id": req.params.id });
-      if (!article) return res.status(404).send();
-      const buffer = await sharp(req.file.buffer).resize({ width: 275 }).png().toBuffer();
-      article.image = buffer;
-      await article.save();
-      res.send();
-  } catch (e) {
-      res.status(500).send();
-  }
-}, (error, req, res, next) => {
-res.status(400).send({ error: error.message });
 });
 
-router.get('/image/:id', async (req, res) => {
+router.post(
+  "/image/:id",
+  upload.single("image"),
+  async (req, res) => {
+    if (!req.file) return res.status(400).send();
+    try {
+      const article = await Article.findOne({ _id: req.params.id });
+      if (!article) return res.status(404).send();
+      const buffer = await sharp(req.file.buffer)
+        .resize({ width: 275 })
+        .png()
+        .toBuffer();
+      article.image = buffer;
+      article.has_image = true;
+      await article.save();
+      res.send();
+    } catch (e) {
+      res.status(500).send();
+    }
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
+
+router.get("/image/:id", async (req, res) => {
   try {
-      const article = await Article.findOne({ "_id": req.params.id });
-      if (!article || !article.image) throw new Error();
-      res.set('Content-Type', 'image/png');
-      res.send(article.image);
+    const article = await Article.findOne({ _id: req.params.id });
+    if (!article || !article.image) throw new Error();
+    res.set("Content-Type", "image/png");
+    res.send(article.image);
   } catch (e) {
-      res.status(404).send();
+    res.status(404).send();
   }
 });
 
 async function getArticles(req, res, next) {
-  let articles
+  let articles;
   try {
-    articles = await Article.find({'docket': req.params.docket})
+    articles = await Article.find({ docket: req.params.docket });
     if (articles == null) {
-      return res.status(404).json({ message: 'Cannot find articles' })
+      return res.status(404).json({ message: "Cannot find articles" });
     }
   } catch (err) {
-    return res.status(500).json({ message: err })
+    return res.status(500).json({ message: err });
   }
 
-  res.articles = articles
-  next()
+  res.articles = articles;
+  next();
 }
 
 // async function getCasesByYear(req, res, next) {
@@ -100,7 +108,7 @@ async function getArticles(req, res, next) {
 //     return res.status(500).json({ message: err })
 //   }
 
-//   res.cases = cases 
+//   res.cases = cases
 //   next()
 // }
 
@@ -115,9 +123,8 @@ async function getArticles(req, res, next) {
 //     return res.status(500).json({ message: err })
 //   }
 
-//   res.cases = cases 
+//   res.cases = cases
 //   next()
 // }
-
 
 module.exports = router;
