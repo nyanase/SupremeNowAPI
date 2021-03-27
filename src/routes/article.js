@@ -46,6 +46,15 @@ router.delete("/all", async (req, res) => {
   }
 });
 
+router.delete("/docket/:docket", async (req, res) => {
+  try {
+    const articles = await Article.deleteMany({ docket: req.params.docket });
+    res.json(articles);
+  } catch (err) {
+    res.status(500).json({ message: err });
+  }
+});
+
 router.post(
   "/image/:id",
   upload.single("image"),
