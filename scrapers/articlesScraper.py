@@ -13,11 +13,11 @@ class ArticlesScraper():
         self.server = "http://localhost:3000"
         if not dev:
             self.server = "https://supremenow-api.herokuapp.com"
-        # self.news_api_client = NewsApiClient(api_key="f4a91eac4aa740af84a93939f587d11c")
-        self.news_api_client = NewsApiClient(api_key="05e5224a10654221ac28569d92d518f2")
+        self.news_api_client = NewsApiClient(api_key="f4a91eac4aa740af84a93939f587d11c")
+        # self.news_api_client = NewsApiClient(api_key="05e5224a10654221ac28569d92d518f2")
         socket.setdefaulttimeout(timeout)
         
-    def get_top_articles(self, q, docket, content=False):
+    def get_top_articles(self, q, docket, name, content=False):
         articles = self.news_api_client.get_everything(q=q)["articles"]
         tot_articles_posted = 0
         for newsapi_article in articles: 
@@ -30,7 +30,8 @@ class ArticlesScraper():
                 "url": "",
                 "image_url": "",
                 "published": "", 
-                "docket": ""  
+                "docket": "",
+                "name": ""
             }
             
             article_dict["source"] = newsapi_article["source"]["name"]
@@ -41,6 +42,7 @@ class ArticlesScraper():
             article_dict["image_url"] = newsapi_article["urlToImage"]
             article_dict["published"] = newsapi_article["publishedAt"]
             article_dict["docket"] = docket
+            article_dict["name"] = name
             
             if content:
                 article_dict["content"] = self.get_content(article_dict["url"])
@@ -86,7 +88,8 @@ class ArticlesScraper():
                 "url": article_dict["url"],
                 "image_url": article_dict["image_url"],
                 "published": article_dict["published"],
-                "docket": article_dict["docket"]
+                "docket": article_dict["docket"],
+                "name": article_dict["name"]
             },
         )
         # print(response.text)
@@ -151,16 +154,16 @@ class ArticlesScraper():
         
         tot_articles_posted = 0
         
-        tot_articles_posted += self.get_top_articles(name, docket)
+        tot_articles_posted += self.get_top_articles(name, docket, name)
         
         if tot_articles_posted < 5 and petitioner is not None:
-            tot_articles_posted += self.get_top_articles(petitioner, docket)
+            tot_articles_posted += self.get_top_articles(petitioner, docket, name)
         if tot_articles_posted < 5 and respondent is not None:
-            tot_articles_posted += self.get_top_articles(respondent, docket)
+            tot_articles_posted += self.get_top_articles(respondent, docket, name)
         if tot_articles_posted < 5 and apellant is not None:
-            tot_articles_posted += self.get_top_articles(apellant, docket)
+            tot_articles_posted += self.get_top_articles(apellant, docket, name)
         if tot_articles_posted < 5 and appellee is not None:
-            tot_articles_posted += self.get_top_articles(appellee, docket)
+            tot_articles_posted += self.get_top_articles(appellee, docket, name)
             
     def get_all_cases(self, active=True):
         active = ""
@@ -202,7 +205,7 @@ class ArticlesScraper():
         if checkpoint:
             self.scrape_articles_all_cases(checkpoint=checkpoint)
         else:
-            self.get_top_articles("supreme court", "main", content)
+            self.get_top_articles("supreme court", "main", "General", content)
             self.scrape_articles_all_cases(content)
             
         
@@ -211,10 +214,8 @@ class ArticlesScraper():
         
 if __name__ == "__main__":
     articles_scraper = ArticlesScraper(dev=False)
-    
-    # PREVIOUS CHECKPOINT = 19-438
-    
-    articles_scraper.scrape_all_articles(checkpoint="19-438")
+        
+    articles_scraper.scrape_all_articles(checkpoint="19-416")
     # cases = articles_scraper.get_all_cases()
     # articles_scraper.get_articles_for_case(cases[0])
     

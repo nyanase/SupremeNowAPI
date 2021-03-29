@@ -40,6 +40,10 @@ const articleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },
   has_image: {
     type: Boolean,
     default: false,
