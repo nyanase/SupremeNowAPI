@@ -75,6 +75,14 @@ class ArticlesScraper():
         # for each name in cases
         return
         
+    def delete_articles_for_case(self, docket):
+        response = requests.delete(
+            "{}/articles/docket/{}".format(self.server, docket)
+        )
+        
+        if not response.ok:
+            raise Exception("Failed to Delete")
+    
     def post_article_content(self, article_dict):
         
         response = requests.post(
@@ -129,28 +137,43 @@ class ArticlesScraper():
         with open(image_name, "rb") as image:
 
             # add image to article
-            r = requests.post(
-                "{}/articles/image/{}".format(self.server, id),
-                files={"image": image},
-            )
-            if r.ok:
-                print("Saved image successfully")
-            else:
+            try:
+                r = requests.post(
+                    "{}/articles/image/{}".format(self.server, id),
+                    files={"image": image},
+                )
+                if r.ok:
+                  print("Saved image successfully")
+                else:
+                    image.close()
+                    os.remove(image_name)
+                    raise Exception(r.status_code, r.text)
+                
+            except:
+                print("Could not connect to server")
+                image.close()
                 os.remove(image_name)
-                raise Exception(r.status_code, r.text)
+                raise Exception("Could not ")
+            
+            
             
             # close the image
             image.close()
         os.remove(image_name)
         
     def get_articles_for_case(self, case, content=False):
-        
         docket = case["docket"]
         name = case["name"]
         petitioner = case["petitioner"] 
         respondent = case["respondent"]
         apellant = case["appellant"]
         appellee = case["appellee"]
+        
+        try:
+            self.delete_articles_for_case(docket)
+        except:
+            print("COULD NOT DELETE ARTICLES", articles_scraper["docket"])
+            return
         
         tot_articles_posted = 0
         

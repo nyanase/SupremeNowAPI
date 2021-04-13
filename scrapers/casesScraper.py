@@ -20,6 +20,17 @@ class CasesScraper:
             self.server = "https://supremenow-api.herokuapp.com"
         self.driver_path = r"/usr/local/bin/chromedriver"
         self.oyez_domain = "https://www.oyez.org/"
+        self.year_urls = [
+            'cases/2021','cases/2020','cases/2019', 'cases/2018', 'cases/2017', 'cases/2016', 'cases/2015', 'cases/2014', 
+            'cases/2013', 'cases/2012', 'cases/2011', 'cases/2010', 'cases/2009', 'cases/2008', 'cases/2007', 'cases/2006', 
+            'cases/2005', 'cases/2004', 'cases/2003', 'cases/2002', 'cases/2001', 'cases/2000', 'cases/1999', 'cases/1998', 
+            'cases/1997', 'cases/1996', 'cases/1995', 'cases/1994', 'cases/1993', 'cases/1992', 'cases/1991', 'cases/1990', 
+            'cases/1989', 'cases/1988', 'cases/1987', 'cases/1986', 'cases/1985', 'cases/1984', 'cases/1983', 'cases/1982', 
+            'cases/1981', 'cases/1980', 'cases/1979', 'cases/1978', 'cases/1977', 'cases/1976', 'cases/1975', 'cases/1974', 
+            'cases/1973', 'cases/1972', 'cases/1971', 'cases/1970', 'cases/1969', 'cases/1968', 'cases/1967', 'cases/1966', 
+            'cases/1965', 'cases/1964', 'cases/1963', 'cases/1962', 'cases/1961', 'cases/1960', 'cases/1959', 'cases/1958', 
+            'cases/1957', 'cases/1956', 'cases/1955', 'cases/1940-1955', 'cases/1900-1940', 'cases/1850-1900', 'cases/1789-1850'
+        ]
 
     def get_driver(self):
         # get Chrome driver
@@ -197,8 +208,8 @@ class CasesScraper:
                     print(case_dict)
                     try:
                         self.post_cases(case_dict)
-                    except:
-                        print("Couldn't post")
+                    except Exception as e:
+                        print("Couldn't post", e)
                         failed_cases.append(case)
 
                 except Exception as e:
@@ -236,8 +247,20 @@ class CasesScraper:
             year_urls.append(term.find("a")["href"])
 
         return year_urls
+    
+    def delete_case(self, docket):
+        response = requests.delete(
+            "{}/cases/docket/{}".format(self.server, docket)
+        )
+        
+        if not response.ok:
+            raise Exception("Failed to Delete")
 
     def post_cases(self, case_dict):
+        try:
+            self.delete_case(case_dict["docket"])
+        except Exception as e:
+            raise Exception(e)
 
         response = requests.post(
             "{}/cases".format(self.server),
@@ -265,12 +288,13 @@ class CasesScraper:
 
     def scrape_all_cases(self):
         # get all scrapable years
-        year_urls = self.get_scrapable_years()
+        # year_urls = self.get_scrapable_years()
+        # print(year_urls)
 
         complete_err_list = []
 
         # scrape all cases for each year
-        for year_url in year_urls:
+        for year_url in self.year_urls:
             err_list = self.scrape_cases_by_year(year_url)
             complete_err_list.append(err_list)
 
@@ -278,7 +302,7 @@ class CasesScraper:
 
 
 if __name__ == "__main__":
-    casesScraper = CasesScraper(dev=False)
-    # casesScraper.scrape_all_cases()
+    casesScraper = CasesScraper(dev=True)
+    casesScraper.scrape_all_cases()
     # casesScraper.scrape_single_case("https://www.oyez.org/cases/2018/18-726")
-    casesScraper.scrape_cases_by_year("cases/2020")
+    # casesScraper.scrape_cases_by_year("cases/2020")
