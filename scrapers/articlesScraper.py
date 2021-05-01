@@ -13,8 +13,9 @@ class ArticlesScraper():
         self.server = "http://localhost:3000"
         if not dev:
             self.server = "https://supremenow-api.herokuapp.com"
-        self.news_api_client = NewsApiClient(api_key="f4a91eac4aa740af84a93939f587d11c")
+        # self.news_api_client = NewsApiClient(api_key="f4a91eac4aa740af84a93939f587d11c")
         # self.news_api_client = NewsApiClient(api_key="05e5224a10654221ac28569d92d518f2")
+        self.news_api_client = NewsApiClient(api_key="b8be1412d216447b9c08e5eeed3deaf4")
         socket.setdefaulttimeout(timeout)
         
     def get_top_articles(self, q, docket, name, content=False):
@@ -169,31 +170,30 @@ class ArticlesScraper():
         apellant = case["appellant"]
         appellee = case["appellee"]
         
+        print("Getting articles for name: {}, docket: {}".format(name, docket))
+        
         try:
             self.delete_articles_for_case(docket)
         except:
             print("COULD NOT DELETE ARTICLES", articles_scraper["docket"])
             return
         
-        tot_articles_posted = 0
+        # tot_articles_posted = 0
         
-        tot_articles_posted += self.get_top_articles(name, docket, name)
+        tot_articles_posted = self.get_top_articles(name, docket, name)
         
-        if tot_articles_posted < 5 and petitioner is not None:
-            tot_articles_posted += self.get_top_articles(petitioner, docket, name)
-        if tot_articles_posted < 5 and respondent is not None:
-            tot_articles_posted += self.get_top_articles(respondent, docket, name)
-        if tot_articles_posted < 5 and apellant is not None:
-            tot_articles_posted += self.get_top_articles(apellant, docket, name)
-        if tot_articles_posted < 5 and appellee is not None:
-            tot_articles_posted += self.get_top_articles(appellee, docket, name)
+        # if tot_articles_posted < 5 and petitioner is not None:
+        #     tot_articles_posted += self.get_top_articles(petitioner, docket, name)
+        # if tot_articles_posted < 5 and respondent is not None:
+        #     tot_articles_posted += self.get_top_articles(respondent, docket, name)
+        # if tot_articles_posted < 5 and apellant is not None:
+        #     tot_articles_posted += self.get_top_articles(apellant, docket, name)
+        # if tot_articles_posted < 5 and appellee is not None:
+        #     tot_articles_posted += self.get_top_articles(appellee, docket, name)
             
-    def get_all_cases(self, active=True):
-        active = ""
-        if active:
-            active = "/active"
-        
-        url = self.server + "/cases{}".format(active)
+    def get_all_cases(self):
+       
+        url = self.server + "/cases/active"
         try: 
             cases = requests.get(url)
         except Exception as e:
@@ -217,7 +217,8 @@ class ArticlesScraper():
                 idx += 1
                 
         else:
-            for case in cases:
+            for i, case in enumerate(cases):
+                print("Number: {}".format(i))
                 self.get_articles_for_case(case)
         
         print("All articles for all cases scraped")
