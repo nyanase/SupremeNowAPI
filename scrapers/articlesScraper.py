@@ -7,6 +7,7 @@ import ast
 from urllib.parse import urlparse
 import json
 import socket
+from datetime import datetime
 
 class ArticlesScraper():
     def __init__(self, dev=True, timeout=15):
@@ -109,7 +110,6 @@ class ArticlesScraper():
         
         return json.loads(response.text)["_id"]
 
-        
     
     def post_article_image(self, image_url, id):
         # image_format = image_url[image_url.rfind('.'):]
@@ -161,6 +161,23 @@ class ArticlesScraper():
             # close the image
             image.close()
         os.remove(image_name)
+        
+    def post_finished_time(self):
+        current_time = datetime.now()
+        current_time = current_time.strftime("%m/%d/%Y, %H:%M:%S")
+        
+        response = requests.post(
+            "{}/timer-checker".format(self.server),
+            json={
+                "time": current_time  
+            },
+        )
+        
+        if response.ok:
+            print("Posted time successfully")
+        else:
+            raise Exception(response.status_code, response.text)
+        
         
     def get_articles_for_case(self, case, content=False):
         docket = case["docket"]
@@ -238,14 +255,20 @@ class ArticlesScraper():
             self.get_top_articles("supreme court", "main", "General", content)
             self.scrape_articles_all_cases(content)
             
-        
         print("Got all articles for the day")    
+        
+        try:    
+            self.post_finished_time()
+        except Exception as e:
+            print("Could not post finished time, error: {}".format(e))
+        
         
         
 if __name__ == "__main__":
     articles_scraper = ArticlesScraper(dev=True)
         
     articles_scraper.scrape_all_articles()
+    articles_scraper.post_finished_time()
     # cases = articles_scraper.get_all_cases()
     # articles_scraper.get_articles_for_case(cases[0])
     
