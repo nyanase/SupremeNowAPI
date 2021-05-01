@@ -229,6 +229,12 @@ class ArticlesScraper():
         if checkpoint:
             self.scrape_articles_all_cases(checkpoint=checkpoint)
         else:
+            # delete main before getting main articles
+            try:
+                self.delete_articles_for_case("main")
+            except:
+                print("COULD NOT DELETE ARTICLES", "main")
+                
             self.get_top_articles("supreme court", "main", "General", content)
             self.scrape_articles_all_cases(content)
             
@@ -237,9 +243,9 @@ class ArticlesScraper():
         
         
 if __name__ == "__main__":
-    articles_scraper = ArticlesScraper(dev=False)
+    articles_scraper = ArticlesScraper(dev=True)
         
-    articles_scraper.scrape_all_articles(checkpoint="19-416")
+    articles_scraper.scrape_all_articles()
     # cases = articles_scraper.get_all_cases()
     # articles_scraper.get_articles_for_case(cases[0])
     
